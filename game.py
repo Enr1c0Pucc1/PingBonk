@@ -1,25 +1,211 @@
 from pygame import *
-w = 700
-h = 500
+from random import random
+w=1280
+h=720
+q = 10
+a = 10
+score1 = 0
+score2 = 0
 
-class Alpha(sprite.Sprite):
-    def __init__(self,x,y,h,w,speed,img_name):
-        super().__init__()
-        self.image = image.load(img_name)
-        self.rect = Rect(x,y,h,w)
-        self.rect.x
-        self.rect.y
+
+class Main(sprite.Sprite):
+
+    def __init__(self,x,y,filename,speed,v,n):
+        self.image = image.load(filename)
+        self.image = transform.scale(self.image,(v,n))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.n = n
+        self.v = v
+        self.hface = "right"
+        self.nface = "up"
+        self.speed = speed
+
+    def reset(self):
+        win.blit(self.image,( self.rect.x,self.rect.y))
+
+class Ball(Main):
+    def __init__(self,x,y,filename,speed,v,n):
+        super().__init__(x,y,filename,speed,v,n)
+        self.need_change_speed = False
+        self.last_touch_racket = False
+
+    def change_speed(self):
+        self.speed = 10
+        self.need_change_speed = True
+
+    def goto(self):
+        if sprite.collide_rect(self,side_stena):
+            self.rect.x = 200
+            self.rect.y = 540
+        if sprite.collide_rect(self,side_stena1):
+            self.rect.x = 200
+            self.rect.y = 540
+    def update(self):
+        if self.need_change_speed:
+            self.speed -= 0.1
+            if self.speed < q:
+                self.speed = 10
+                self.need_change_speed = False
+
+        if self.hface == "right":
+            self.rect.x += self.speed
+            if sprite.collide_rect(self,racketka_right):
+                self.last_touch_racket = "right"
+                self.change_speed()
+                self.hface="left"
+                if random() > 0.5:
+                    self.nface = "up"
+        else:
+            self.rect.x -= self.speed
+            if sprite.collide_rect(self,racketka_left):
+                self.last_touch_racket = "left"
+                self.change_speed()
+                self.hface="right" 
+                if random() > 0.5:
+                    self.nface = "down" 
+        if self.nface == "up":
+            self.rect.y -= self.speed
+            if self.rect.y < 0:
+                self.nface="down"
+        else:
+            self.rect.y += self.speed
+            if self.rect.y + self.n > h:
+                self.nface="up" 
+        self.reset()
+
+class Racketka(Main):
+    def __init__(self,x,y,filename,speed,v,n):
+        super().__init__(x,y,filename,speed,v,n)
+        self.need_change_speed = False
+
+    def change_speed(self):
+        self.speed -= 5
+        self.need_change_speed = True
+
+    def update(self):
+        if self.rect.y < 0:
+            self.rect.y = 0
+        if self.rect.y + 160 > h:
+            self.rect.y = h - 160
+        if self.need_change_speed:
+            self.speed += 0.01
+            if self.speed > a:
+                self.speed = a
+                self.need_change_speed = False
+
+        keys=key.get_pressed()
+        if keys[K_w]:
+            self.rect.y -= self.speed
+        if keys[K_s]:
+            self.rect.y += self.speed
+        self.reset()
+
+class Racketka1(Main):
+    def __init__(self,x,y,filename,speed,v,n):
+        super().__init__(x,y,filename,speed,v,n)
+        self.need_change_speed = False
+
+    def change_speed(self):
+        self.speed -= 5
+        self.need_change_speed = True
+
+    
+    def update(self):
+        if self.rect.y < 0:
+            self.rect.y = 0
+        if self.rect.y + 160 > h:
+            self.rect.y = h - 160
+        if self.need_change_speed:
+            self.speed += 0.01
+            if self.speed > a:
+                self.speed = a
+                self.need_change_speed = False
+
+        keys=key.get_pressed()
+        if keys[K_UP]:
+            self.rect.y -= self.speed
+        if keys[K_DOWN]:
+            self.rect.y += self.speed
+        self.reset()
+
+class Wall(sprite.Sprite):  
+
+    def __init__(self,x,y,w,h,side,color):  
+        self.image = Surface((w,h))   
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.side = side
     def reset(self):
         win.blit(self.image,(self.rect.x,self.rect.y))
+    def update(self):
+        if sprite.collide_rect(self,ball):
+            global side
+            global score1
+            global score2
+            global end_game
+            if self.side == 0:
+                score1 += 1
+            if self.side == 1:
+                score2 += 2
+            #if score1 or score2 >= 15:
+                #end_game = lose_text       
+        self.reset()
 
-ball=Alpha(100,100,5,5 ,1,"Tennis_Ball.png")
+ball = Ball(x= 200,y = 540,filename="Tennis_Ball.png",speed = q,v = 75,n = 75)
+racketka_left = Racketka(x = 10,y=540,filename="Чимс1.png",speed = a,v = 100,n = 160)
+racketka_right = Racketka1(x = w-100,y = 540,filename="Чимс2.png",speed = a,v = 100,n = 160)
 
-win = display.set_mode((w,h))
-while True:
-    win.fill((255,255,255))
+CornflowerBlue = (100,149,237)   
+Black = (0,0,0)  
+PeachPuff = (255,218,185)
 
+side_stena = Wall(0,0,1,1080,0,PeachPuff)     
+side_stena1 = Wall(w-1,0,1,1080,1,PeachPuff)   
+
+resolution = [w,h]
+
+win = display.set_mode((resolution),flags=FULLSCREEN)
+display.set_caption("PingBonk")
+
+timer = time.Clock()
+FPS = 60
+
+fon=image.load("fon.png")
+
+font.init()
+shirift = font.SysFont("Impact",148)
+lose_text = shirift.render("Ты проиграл!",False,Black)
+
+pscore1 = shirift.render("Счет: "+str(score1),False,CornflowerBlue)
+pscore2 = shirift.render("Счет: "+str(score2),False,CornflowerBlue)
+
+game = True
+end_game = False
+while game:
     for e in event.get():
+        if e.type == 2:
+            keys=key.get_pressed()
+            if keys[K_ESCAPE]:
+                game = False
         if e.type == 12:
-            exit()
-    ball.reset()
+            game = False
+
+    win.blit(fon,(0,0))
+    timer.tick(FPS)   
+
+    if end_game == False:
+        ball.update() 
+        ball.goto()
+        racketka_left.update()
+        racketka_right.update()
+        side_stena.update()
+        side_stena1.update()
+        win.blit(pscore1,(w*0.2,h*0.2))
+        win.blit(pscore2,(w*0.2,h*0.2))
+    if end_game == lose_text:
+        win.blit(lose_text,(w*0.2,h*0.2))
     display.update()
