@@ -32,7 +32,7 @@ class Ball(Main):
         self.last_touch_racket = False
 
     def change_speed(self):
-        self.speed = 10
+        self.speed += 3
         self.need_change_speed = True
 
     def goto(self):
