@@ -32,16 +32,29 @@ class Ball(Main):
         self.last_touch_racket = False
 
     def change_speed(self):
-        self.speed += 3
+        self.speed += 5
         self.need_change_speed = True
 
     def goto(self):
+        global pscore1
+        global pscore2
+        global score1
+        global score2
+        global end_game
         if sprite.collide_rect(self,side_stena):
-            self.rect.x = 200
-            self.rect.y = 540
+            self.rect.x = 1000
+            self.rect.y = h*0.2
+            score2 += 1
+            pscore2 = scndshirift.render("Счет: "+str(score2),False,CornflowerBlue)
         if sprite.collide_rect(self,side_stena1):
             self.rect.x = 200
-            self.rect.y = 540
+            self.rect.y = h*0.2
+            score1 += 1
+            pscore1 = scndshirift.render("Счет: "+str(score1),False,CornflowerBlue)         
+        if score1 >= 15:
+            end_game = lose_text2
+        if score2 >= 15:
+            end_game = lose_text1
     def update(self):
         if self.need_change_speed:
             self.speed -= 0.1
@@ -142,25 +155,15 @@ class Wall(sprite.Sprite):
     def reset(self):
         win.blit(self.image,(self.rect.x,self.rect.y))
     def update(self):
-        if sprite.collide_rect(self,ball):
-            global side
-            global score1
-            global score2
-            global end_game
-            if self.side == 0:
-                score1 += 1
-            if self.side == 1:
-                score2 += 2
-            #if score1 or score2 >= 15:
-                #end_game = lose_text       
-        self.reset()
+        if sprite.collide_rect(self,ball):   
+            self.reset()
 
 ball = Ball(x= 200,y = 540,filename="Tennis_Ball.png",speed = q,v = 75,n = 75)
 racketka_left = Racketka(x = 10,y=540,filename="Чимс1.png",speed = a,v = 100,n = 160)
 racketka_right = Racketka1(x = w-100,y = 540,filename="Чимс2.png",speed = a,v = 100,n = 160)
 
 CornflowerBlue = (100,149,237)   
-Black = (0,0,0)  
+Black = (255,255,255)  
 PeachPuff = (255,218,185)
 
 side_stena = Wall(0,0,1,1080,0,PeachPuff)     
@@ -177,11 +180,15 @@ FPS = 60
 fon=image.load("fon.png")
 
 font.init()
-shirift = font.SysFont("Impact",148)
-lose_text = shirift.render("Ты проиграл!",False,Black)
+shirift = font.SysFont("Impact",100)
+lose_text1 = shirift.render("Игрок слева проиграл!",False,Black)
 
-pscore1 = shirift.render("Счет: "+str(score1),False,CornflowerBlue)
-pscore2 = shirift.render("Счет: "+str(score2),False,CornflowerBlue)
+lose_text2 = shirift.render("Игрок справа проиграл!",False,Black)
+
+scndshirift = font.SysFont("Impact",50)
+pscore1 = scndshirift.render("Счет: "+str(score2),False,CornflowerBlue)
+
+pscore2 = scndshirift.render("Счет: "+str(score1),False,CornflowerBlue)
 
 game = True
 end_game = False
@@ -204,8 +211,10 @@ while game:
         racketka_right.update()
         side_stena.update()
         side_stena1.update()
-        win.blit(pscore1,(w*0.2,h*0.2))
-        win.blit(pscore2,(w*0.2,h*0.2))
-    if end_game == lose_text:
-        win.blit(lose_text,(w*0.2,h*0.2))
+        win.blit(pscore1,(0,0))
+        win.blit(pscore2,(w-175,0))
+    if end_game == lose_text1:
+        win.blit(lose_text1,(w*0.2,h*0.2))
+    if end_game == lose_text2:
+        win.blit(lose_text2,(w*0.2,h*0.2))
     display.update()
