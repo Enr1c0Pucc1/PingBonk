@@ -42,13 +42,13 @@ class Ball(Main):
         global score2
         global end_game
         if sprite.collide_rect(self,side_stena):
-            self.rect.x = 1000
-            self.rect.y = h*0.2
+            self.rect.x = 1100
+            self.rect.y = h*0.5
             score2 += 1
             pscore2 = scndshirift.render("Счет: "+str(score2),False,CornflowerBlue)
         if sprite.collide_rect(self,side_stena1):
-            self.rect.x = 200
-            self.rect.y = h*0.2
+            self.rect.x = 100
+            self.rect.y = h*0.5
             score1 += 1
             pscore1 = scndshirift.render("Счет: "+str(score1),False,CornflowerBlue)         
         if score1 >= 15:
